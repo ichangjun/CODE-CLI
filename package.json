@@ -1,0 +1,27 @@
+{
+  "name": "code-cli",
+  "version": "2.0.0",
+  "description": "code template cli",
+  "main": "app.js",
+  "bin": {
+    "code-cli": "/bin/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ichangjun/CODE-CLI.git"
+  },
+  "keywords": [
+    "cli",
+    "nodejs",
+    "template"
+  ],
+  "author": "Anson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ichangjun/CODE-CLI/issues"
+  },
+  "homepage": "https://github.com/ichangjun/CODE-CLI#readme"
+}
