@@ -2,14 +2,16 @@
  * @Author: changjun anson1992@163.com
  * @Date: 2024-04-12 14:39:32
  * @LastEditors: changjun anson1992@163.com
- * @LastEditTime: 2024-04-12 15:50:55
+ * @LastEditTime: 2024-04-12 17:02:00
  * @FilePath: /CODE-CLI/README.md
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @Description: 文档
 -->
 
 # CODE-CLI 脚手架工具工程的搭建步骤
 
-## 1. npm init -y 执行初始化，并添加 bin 脚本执行命令
+## 1. 自定义全局命令
+
+### 1.1. npm init -y 执行初始化，并添加 bin 脚本执行命令
 
 npm i 简单，省略该步骤，直接执行 bin 脚本命令即可。
 
@@ -35,13 +37,13 @@ npm link
 # changed 1 package, and audited 3 packages in 3s
 ```
 
-## 2. 创建 bin 目录及 cli.js 文件
+### 1.2. 创建 bin 目录及 cli.js 文件
 
 ```bash
 mkdir bin && touch bin/cli.js
 ```
 
-## 3. 编写 cli.js 脚本
+### 1.3. 编写 cli.js 脚本
 
 ```js
 #! /usr/bin/env node
@@ -50,10 +52,61 @@ mkdir bin && touch bin/cli.js
 console.log('Hello World!')
 ```
 
-## 4. 执行 cli.js 脚本
+### 1.4. 执行 cli.js 脚本
 
 ```bash
 code-cli
 # 结果如下，表示成功输出 Hello World!
 # Hello World!
+```
+
+## 2. 自定义命令行交互
+
+### 2.1. 安装 inquirer 包
+
+```bash
+
+npm i inquirer
+```
+
+2.2. 编写 cli.js 脚本
+
+```js
+const inquirer = require('inquirer')
+
+inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: '请输入项目名称：'
+    },
+    {
+      type: 'input',
+      name: 'description',
+      message: '请输入项目描述：'
+    },
+    {
+      type: 'input',
+      name: 'author',
+      message: '请输入项目作者：'
+    },
+    {
+      type: 'input',
+      name: 'email',
+      message: '请输入项目作者邮箱：'
+    }
+  ])
+  .then((answers) => {
+    console.log(answers)
+  })
+  .catch((error) => {
+    if (error.isTtyError) {
+      // Prompt couldn't be rendered in the current environment
+      console.log('当前环境无法渲染命令行交互')
+    } else {
+      // Something else went wrong
+      console.log('发生错误')
+    }
+  })
 ```

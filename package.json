@@ -23,5 +23,12 @@
   "bugs": {
     "url": "https://github.com/ichangjun/CODE-CLI/issues"
   },
-  "homepage": "https://github.com/ichangjun/CODE-CLI#readme"
+  "homepage": "https://github.com/ichangjun/CODE-CLI#readme",
+  "devDependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.0.0",
+    "download-git-repo": "^3.0.2",
+    "inquirer": "^8.0.0",
+    "ora": "^5.0.0"
+  }
 }
