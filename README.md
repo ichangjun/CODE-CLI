@@ -2,7 +2,7 @@
  * @Author: changjun anson1992@163.com
  * @Date: 2024-04-12 14:39:32
  * @LastEditors: changjun anson1992@163.com
- * @LastEditTime: 2024-04-15 17:33:49
+ * @LastEditTime: 2024-04-15 17:44:01
  * @FilePath: /CODE-CLI/README.md
  * @Description: 文档
 -->
@@ -187,5 +187,26 @@ download(`direct:${url}`, project, { clone: true }, (err) => {
 代码模板中的 package.json 文件的 配置是统一的，怎么根据和用户的自定义问答生成项目特定的配置呢，我们可以增加一个模板配置文件，然后根据用户的输入生成 package.json 文件。
 
 ```js
-
+const packageJson = fs.readFileSync(path.join(project, 'package.json'), 'utf-8')
+const json = JSON.parse(packageJson)
+Object.keys(answer).forEach((key) => {
+  if (key === 'name') {
+    json.name = answer[key] ? answer[key] : project
+  } else {
+    json[key] = answer[key]
+  }
+})
+// 写入新的package.json文件
+fs.writeFileSync(path.join(project, 'package.json'), JSON.stringify(json, null, 2))
+console.log(chalk.green.bold('工程初始化成功！'))
 ```
+
+实现逻辑是基于 nodejs 对于文件的操作能力
+
+## 5. 发布 npm 包
+
+```bash
+npm publish
+```
+
+发布成功后，我们就可以在全局环境中使用 `kd-code-cli` 命令来创建项目了。
