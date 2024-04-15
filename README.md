@@ -2,7 +2,7 @@
  * @Author: changjun anson1992@163.com
  * @Date: 2024-04-12 14:39:32
  * @LastEditors: changjun anson1992@163.com
- * @LastEditTime: 2024-04-12 17:02:00
+ * @LastEditTime: 2024-04-15 17:33:49
  * @FilePath: /CODE-CLI/README.md
  * @Description: 文档
 -->
@@ -22,7 +22,7 @@ npm i 简单，省略该步骤，直接执行 bin 脚本命令即可。
   "description": "code template cli",
   "main": "app.js",
   "bin": {
-    "code-cli": "./bin/cli.js"
+    "kd-code-cli": "./bin/cli.js"
   }
 }
 ```
@@ -64,49 +64,128 @@ code-cli
 
 ### 2.1. 安装 inquirer 包
 
+注意安装的 inquirer 的包版本，不要超过 8.0.0 版本，否则不支持 require 的引入方式。
+
 ```bash
 
 npm i inquirer
 ```
 
-2.2. 编写 cli.js 脚本
+### 2.2. 编写 core/action.js 脚本
 
 ```js
 const inquirer = require('inquirer')
 
-inquirer
-  .prompt([
-    {
-      type: 'input',
-      name: 'name',
-      message: '请输入项目名称：'
-    },
-    {
-      type: 'input',
-      name: 'description',
-      message: '请输入项目描述：'
-    },
-    {
-      type: 'input',
-      name: 'author',
-      message: '请输入项目作者：'
-    },
-    {
-      type: 'input',
-      name: 'email',
-      message: '请输入项目作者邮箱：'
+const answer = await inquirer.prompt([
+  {
+    type: 'input',
+    name: 'name',
+    message: '请输入工程名称：',
+    default: project,
+    validate(val) {
+      if (!val) {
+        return '项目名称不能为空'
+      } else {
+        return true
+      }
     }
-  ])
-  .then((answers) => {
-    console.log(answers)
-  })
-  .catch((error) => {
-    if (error.isTtyError) {
-      // Prompt couldn't be rendered in the current environment
-      console.log('当前环境无法渲染命令行交互')
-    } else {
-      // Something else went wrong
-      console.log('发生错误')
+  },
+  {
+    type: 'input',
+    name: 'description',
+    message: '请输入项目描述：',
+    default: 'A new project'
+  },
+  {
+    type: 'list',
+    name: 'framework',
+    message: '请选择项目框架：',
+    choices: config.framework
+  },
+  {
+    type: 'input',
+    name: 'author',
+    message: '请输入项目作者：'
+  },
+  {
+    type: 'input',
+    name: 'email',
+    message: '请输入邮箱：',
+    validate(val) {
+      // 使用正则表达式验证邮箱格式
+      if (val && !/^\S+@\S+\.\S+$/.test(val)) {
+        return '请输入有效的邮箱地址'
+      } else {
+        return true
+      }
     }
-  })
+  }
+])
+console.log('answer:', answer)
+```
+
+### 2.3. 引入 commander 插件，编写 core/commander.js 脚本，引入 action.js 脚本，并添加命令行交互
+
+```js
+const myAction = require('./action')
+const commander = (program) => {
+  program
+    .command('create <project> [other...]')
+    .description('创建一个新项目')
+    .alias('crt')
+    .action(myAction)
+}
+```
+
+## 3. 根据和用户自定义交互信息，完善项目的创建逻辑，并实现从远端仓库拉取代码模板
+
+### 3.1 引入 download-git-repo、ora、chalk 插件，实现从远端仓库拉取代码模板
+
+我们用其中一种拉取仓库代码的方式，其他方式参考官方文档。
+
+```js
+
+download(`direct:${url}`, project, { clone: true }, (err) => {
+    if (!err) {
+      spinner.succeed('工程下载成功')
+      } else {
+
+      }
+  }
+```
+
+### 3.2 下载加载 loading、提示语
+
+使用 ora 插件实现下载过程中的等待效果，使用 chalk 插件实现提示语的颜色变化，更加直观和美观。
+
+```js
+const spinner = ora().start()
+spinner.text = '工程正在下载……'
+// 使用clone参数克隆远程仓库到本地
+download(`direct:${url}`, project, { clone: true }, (err) => {
+  if (!err) {
+    spinner.succeed('工程下载成功')
+    console.log(
+      chalk.blue.bold('Done!'),
+      chalk.blue.bold('接下来，你可以进入工程目录，安装依赖，启动项目:')
+    )
+    console.log('cd ' + project)
+    console.log('npm install / yarn')
+    console.log('npm run dev')
+  } else {
+    spinner.fail('工程下载失败')
+  }
+})
+```
+
+至此，一个简单版本的脚手架工具工程已经搭建完成，接下来可以根据自己的需求进行扩展和优化。
+
+## 4. 扩展功能
+
+### 4.1. 增加自定义模板功能
+
+代码模板中的 package.json 文件的 配置是统一的，怎么根据和用户的自定义问答生成项目特定的配置呢，我们可以增加一个模板配置文件，然后根据用户的输入生成 package.json 文件。
+
+```js
+
 ```
